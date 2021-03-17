@@ -1,0 +1,333 @@
+
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>DataTables Examples</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link type="text/css" rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.dataTables.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+ 
+    <style>
+        div.mydiv{
+            width:100%;
+            height:50px;
+            background-color: #8FBC8F;
+            text-align: center;
+            line-height:50px;
+        }
+        tr td{
+            text-align: center;
+        }
+
+    </style>
+    <script>
+       
+           
+            
+            $(document).ready(function() {
+                var names=[];
+                var initData;
+                var clickElement;
+                var dialog = $( "#dialog-form" ).dialog({
+                            autoOpen: false,
+                            height: 210,
+                            width: 300,
+                            modal: true,
+                            buttons: {
+                                
+                                OK: function() {
+                                    
+                                                               
+                                    
+                                    //데이타 변경시 수정된 JSON으로 다시 그리기
+                                    console.log(clickElement.attr('title'))
+                                    var keyIndex = clickElement.attr('title').split(':')
+                                    console.log('인덱스:'+keyIndex[1])
+                                    console.log('키:'+keyIndex[0])
+                                    console.log('row의 이름:'+initData[parseInt(keyIndex[1])]['name'])
+                                    
+                                    console.log('사용자 입력값:'+$('#name').val())     
+                                    console.log(initData[parseInt(keyIndex[1])]['name'])
+                                    console.log($('#name').val())
+
+                                    if(clickElement.html().toUpperCase().indexOf('OFFLINE:')!=-1 || clickElement.html().toUpperCase().indexOf('ONLINE:')!=-1){
+                                            
+                                            var isExist=false
+                                            names.forEach( function( value ) {
+                                                if(value == $('#name').val()){
+                                                    isExist=true;
+                                                    
+                                                } 
+                                            });
+                                            if(!isExist){//명단에 이름이 없는 경우
+                                                alert('존재 하지 않는 이름 입니다.')
+                                                return;
+                                            }
+                                    }
+
+                                    console.log('정상적인 이름 입력시')
+
+                                    if(initData[parseInt(keyIndex[1])]['name']==$('#name').val() && clickElement.html().toUpperCase()=='OFFLINE'){
+                                        initData[parseInt(keyIndex[1])][keyIndex[0]]='OFFLINE:온라인희망'
+                                        clickElement.html('OFFLINE:온라인희망')
+                                    }
+                                    else if(initData[parseInt(keyIndex[1])]['name']!=$('#name').val() && clickElement.html().toUpperCase().indexOf('OFFLINE')!=-1 && clickElement.html().indexOf('온라인희망')!=-1 ){
+                                        initData[parseInt(keyIndex[1])][keyIndex[0]]='OFFLINE:'+$('#name').val()
+                                        clickElement.html('OFFLINE:'+$('#name').val())
+                                    }
+                                    else if(initData[parseInt(keyIndex[1])]['name']==$('#name').val() && clickElement.html().toUpperCase()=='ONLINE'){
+                                        initData[parseInt(keyIndex[1])][keyIndex[0]]='ONLINE:오프라인희망'
+                                        clickElement.html('ONLINE:오프라인희망')
+                                    }
+                                    else if(initData[parseInt(keyIndex[1])]['name']!=$('#name').val() && clickElement.html().toUpperCase().indexOf('ONLINE')!=-1 && clickElement.html().indexOf('오프라인희망')!=-1){
+                                        initData[parseInt(keyIndex[1])][keyIndex[0]]='ONLINE:'+$('#name').val()
+                                        clickElement.html('ONLINE:'+$('#name').val())
+                                    }
+                                    //initData[parseInt(keyIndex[1])][keyIndex[0]]=$('#name').val()
+                                    
+                                    
+                                    //아래 세줄은 저장 버튼 클릭시
+                                    //dataTables.clear().draw();
+                                    //dataTables.rows.add(initData); // Add new data
+                                    //dataTables.columns.adjust().draw(); //
+                                   
+                                    dialog.dialog( "close" );
+                                }
+                            },
+                            open:function(event,ui){
+                                console.log('오픈:'+JSON.stringify(ui))
+                            },
+                            close: function() {
+                               form[0].reset();
+                            
+                            }
+                            });
+                           
+                            form = dialog.find( "form" ).on( "submit", function( event ) {
+                                event.preventDefault();
+                                
+                            });
+
+                        
+                        var dataTables=$('#example').DataTable({
+                            "language": {
+                            "emptyTable": "<h3>데이터가 없습니다.</h3>",
+                            "lengthMenu": "_MENU_ 개씩 보기",
+                            "info": "_START_ - _END_ (총 _TOTAL_ 명)",
+                            "infoEmpty": "",
+                            "infoFiltered": "( _MAX_건의 데이터에서 필터링됨 )",
+                            "search": "검색: ",
+                            "zeroRecords": "<h3>데이타가 없습니다</h3>",                            
+                            "processing":     "잠시만 기다려 주세요...",
+                            "paginate": {
+                                "next": "다음",
+                                "previous": "이전"
+                            }},
+                            responsive: true,                            
+                            //serverSide: false,
+                            pageLength:10,
+                            searching:true,
+                            ajax:{
+                                //'url':'http://54.180.133.82/zoom/zooms',//사용자용은 http://localhost:8080/zoom/zooms 54.180.133.82
+                               'url':'http://54.180.133.82/zoom/zooms',//사용자용은 http://localhost:8080/zoom/zooms 54.180.133.82
+                                'dataSrc':'',
+                                'contentType':'application/json;charset=UTF-8',                       
+                               
+
+                            },
+                            "initComplete":function( settings, data){//서버로 부터 받은 데이타
+                                console.log('=======================')
+                                console.log(data);
+                                console.log('=======================')
+                                initData=data;
+                                
+                                for(idx in data){
+                                    names.push(data[idx]['name']);
+                                }
+                            },
+                            
+                            columns: [
+                                {"data": "name",
+                                "render": function(data, type, row, meta){
+                                    console.log('data:'+data)
+                                    console.log('meta.row:'+meta.row);
+                                        if(type=='display'){
+                                           
+                                            
+                                            
+                                            data = '<div class="mydiv" title="name:'+meta.row+'" style="background-color:#F5F5DC">'+ data + '</div>';
+                                            
+                                            
+                                        }
+                                        return data;
+                                    }
+                              
+                              },
+                                {"data": "monday",
+                                "render": function(data, type, row, meta){
+                                        if(type=='display'){
+                                            if(data.toUpperCase().indexOf('OFFLINE') !=-1)
+                                                data = '<div class="mydiv" title="monday:'+meta.row+'" style="background-color:#FF1493">'+ data + '</div>';
+                                            else
+                                                data = '<div class="mydiv" title="monday:'+meta.row+'" >'+ data + '</div>';
+                                        }
+                                        return data;
+                                    }
+                              },
+                                {"data": "tuesday",
+                                "render": function(data, type, row, meta){
+                                        if(type=='display'){
+                                            if(data.toUpperCase().indexOf('OFFLINE') !=-1)
+                                                data = '<div class="mydiv" title="tuesday:'+meta.row+'" style="background-color:#FF1493">'+ data + '</div>';
+                                            else
+                                                data = '<div class="mydiv" title="tuesday:'+meta.row+'" >'+ data + '</div>';
+                                        }
+                                        return data;
+                                    }
+                                }, 
+                                {"data": "wednesday",
+                                "render": function(data, type, row, meta){
+                                        if(type=='display'){
+                                            if(data.toUpperCase().indexOf('OFFLINE') !=-1)
+                                                data = '<div class="mydiv" title="wednesday:'+meta.row+'" style="background-color:#FF1493">'+ data + '</div>';
+                                            else
+                                                data = '<div class="mydiv" title="wednesday:'+meta.row+'" >'+ data + '</div>';
+                                        }
+                                        return data;
+                                    }
+                                },
+                                {"data": "thursday",
+                                "render": function(data, type, row, meta){
+                                        if(type=='display'){
+                                          
+                                            if(data.toUpperCase().indexOf('OFFLINE') !=-1)
+                                                data = '<div class="mydiv" title="thursday:'+meta.row+'" style="background-color:#FF1493">'+ data + '</div>';
+                                            else
+                                                data = '<div class="mydiv" title="thursday:'+meta.row+'" >'+ data + '</div>';
+                                        }
+                                        return data;
+                                    }
+                                },
+                                {"data": "friday",
+                                "render": function(data, type, row, meta){
+                                        if(type=='display'){
+                                          
+                                            if(data.toUpperCase().indexOf('OFFLINE') !=-1)
+                                                data = '<div class="mydiv" title="friday:'+meta.row+'" style="background-color:#FF1493">'+ data + '</div>';
+                                            else
+                                                data = '<div class="mydiv" title="friday:'+meta.row+'" >'+ data + '</div>';
+                                        }
+                                        return data;
+                                    }
+                                }
+                                
+                            ]
+                            //add a listener to fire when redrawn:
+                        
+                        
+                        });
+
+
+                        
+                        //동적으로 추가된 요소에 대해서도 클릭이벤트 작동하도록
+                         $(document).on('click', '.mydiv', function(){
+
+                            dialog.dialog( "open" );
+                           
+                            clickElement=$(this)
+                            
+                            var keyIndex = $(this).attr('title').split(':')
+                            console.log('row의 이름:'+initData[parseInt(keyIndex[1])]['name'])
+                            $('#name').val(initData[parseInt(keyIndex[1])]['name'])
+                           
+                         
+                           
+                          
+                           
+                        });
+                       
+
+                        $('#complete').click(function(){
+                            dataTables.clear().draw();
+                            dataTables.rows.add(initData); // Add new data
+                            dataTables.columns.adjust().draw(); //
+                            console.log(initData[1])//확인용
+                            //서버로 initData전송
+                            //아래 저장은 관리용 CSV 업데이트
+                            
+                            $.ajax({
+                                url:"http://54.180.133.82/zoom/update",
+                                data:JSON.stringify(initData),
+                                type:'post',
+                                contentType:'application/json',
+                                dataType:'text',
+                                success:function(data){alert(data)},//함수명만(()는 제외)
+                                	
+                            });
+
+                           
+
+                        });
+                        $.fn.dataTable.ext.errMode = function(obj,param,err){
+                                var tableId = obj.sTableId;
+                                console.log('서버에서 JSON데이타를 받지 못합니다:테이블 아이디는 '+tableId);
+                        };
+                      
+
+                        
+            });
+    </script>
+    <body>
+        
+        
+        <div id="dialog-form" title="오프라인 희망시 이름을 입력하세요">
+            
+            <form class="form-inline">
+                
+                    <div class="form-group">
+						<label>이름</label>
+						<input type="text" class="form-control input-sm"  name="name" id="name">
+					</div>
+                    <p class="help-block" style="font-weight: bold;color:red">모든 변경후에는 "저장"버튼을<br/> 꼭 클릭하세요.</p>
+               
+                
+            </form>
+        </div>
+        <div class="container">
+            <div class="jumbotron">
+                <h1>비대면수업 일정<h2>6 Classroom <span class="label label-success">최철환</span></h2></h1>
+               
+              </div>
+       
+              <h3>설정 내용 저장하기</h3>
+       
+        <button type="button" class="btn btn-success" id="complete">저장</button>
+        <h3>비대면 OFFLINE/ONLINE일정</h3>
+        <table class="table table-striped table-bordered" id="example" style="width:100%">
+            <thead>
+                <tr>
+                    <th>NAME</th>
+                    <th>MONDAY</th>
+                    <th>TUESDAY</th>
+                    <th>WEDENSDAY</th>
+                    <th>THURSDAY</th>
+                    <th>FRIDAY</th>
+                </tr>
+            </thead>
+           
+        </table>
+    </div>
+    </body>
+
+</html>

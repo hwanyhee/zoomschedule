@@ -1,0 +1,351 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>DataTables Examples</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link type="text/css" rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.dataTables.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    
+ 
+    <style>
+        div.mydiv{
+            width:100%;
+            height:50px;
+            background-color: #8FBC8F;
+            text-align: center;
+            line-height:50px;
+        }
+        tr td{
+            text-align: center;
+        }
+        .bg{
+            background-color: red;
+        }
+
+    </style>
+    <script>
+       
+
+            
+            $(document).ready(function() {
+              var initData;
+                var clickElement;
+              
+                var dialog = $( "#dialog-form" ).dialog({
+                            autoOpen: false,
+                            height: 200,
+                            width: 300,
+                            modal: true,
+                            buttons: {
+                                
+                                OK: function() {
+                                    
+                                  
+                                   
+                                    //데이타 변경시 수정된 JSON으로 다시 그리기
+                                    
+                                    var keyIndex = clickElement.attr('title').split(':')
+                                    console.log('인덱스:'+keyIndex[1])
+                                    console.log('키:'+keyIndex[0])
+                                    if($('#offline').prop('checked')){
+                                        clickElement.css('background-color','#FF1493')
+                                        clickElement.html('OFFLINE')
+                                        console.log("initData[parseInt(keyIndex[1])][keyIndex[0]]:"+initData[parseInt(keyIndex[1])][keyIndex[0]])
+                                        initData[parseInt(keyIndex[1])][keyIndex[0]]="OFFLINE"
+                                    }
+                                    else {
+                                        clickElement.css('background-color','#8FBC8F')
+                                        clickElement.html('ONLINE')
+                                        initData[parseInt(keyIndex[1])][keyIndex[0]]="ONLINE"
+                                    }
+                                    console.log(initData[parseInt(keyIndex[1])][keyIndex[0]])
+                                    //아래 세줄은 완료 버튼 클릭시
+                                    //dataTables.clear().draw();
+                                    //dataTables.rows.add(initData); // Add new data
+                                    //dataTables.columns.adjust().draw(); //
+                                   
+                                    dialog.dialog( "close" );
+                                }
+                            },
+                            open:function(event,ui){
+                               
+                                //일정 진행중인지 체크
+                                $.ajax({
+                                    url:"http://54.180.133.82/zoom/zooms",                                                              
+                                    
+                                    type:'get',
+                                    contentType:'application/json;charset=UTF-8',
+                                    dataType:'json',
+                                    success:function(data){
+                                        //alert(JSON.stringify(data))
+                                        var jsonStr=JSON.stringify(data);
+                                        if(jsonStr.toUpperCase().indexOf("OFFLINE:") !=-1 || jsonStr.toUpperCase().indexOf("ONLINE:") !=-1) {
+        		                                   alert("일정이 진행중이어서 업데이트를 할 수 없습니다");
+                                                   dialog.dialog( "close" );
+        	                                   }
+                                         
+                                    },
+                                        
+                                });
+
+                                
+                            },
+                            close: function() {
+                                form[0].reset();
+                            
+                            }
+                            });
+                         
+                            form = dialog.find( "form" ).on( "submit", function( event ) {
+                                event.preventDefault();
+                                
+                            });
+
+                        
+                        var dataTables=$('#example').DataTable({
+                            
+                            "language": {
+                            "emptyTable": "<h3>데이터가 없습니다.</h3>",
+                            "lengthMenu": "_MENU_ 개씩 보기",
+                            "info": "_START_ - _END_ (총 _TOTAL_ 명)",
+                            "infoEmpty": "",
+                            "infoFiltered": "( _MAX_건의 데이터에서 필터링됨 )",
+                            "search": "검색: ",
+                            "zeroRecords": "<h3>데이터가 없습니다.</h3>",                            
+                            "processing":     "잠시만 기다려 주세요...",
+                            "paginate": {
+                                "next": "다음",
+                                "previous": "이전"
+                            }},
+                            responsive: true,                            
+                            serverSide: false,
+                            pageLength:10,
+                            searching:true,
+                            ajax:{
+                                'url':'http://54.180.133.82/zoom/offlines',//사용자용은 http://localhost:8080/zoom/zooms
+                                //'url':'http://localhost:8080/zoom/offlines',
+                                'dataSrc':'',                       
+                               
+
+                            },
+                            "initComplete":function( settings, data){//서버로 부터 받은 데이타
+                                
+                                console.log('초기 데이타:'+data);initData=data;
+                            },
+                            
+                            columns: [
+                                {"data": "name",
+                                "render": function(data, type, row, meta){
+                                    console.log('data:'+data)
+                                    console.log('meta.row:'+meta.row);
+                                        if(type=='display'){
+                                           
+                                            data = '<div class="mydiv" title="name:'+meta.row+'" style="background-color:#F5F5DC">'+ data + '</div>';
+                                            
+                                        }
+                                        return data;
+                                    }
+                              
+                              },
+                                {"data": "monday",
+                                "render": function(data, type, row, meta){
+                                        if(type=='display'){
+                                            if(data.toUpperCase().indexOf('OFFLINE') !=-1)
+                                                data = '<div class="mydiv" title="monday:'+meta.row+'" style="background-color:#FF1493">'+ data + '</div>';
+                                            else
+                                                data = '<div class="mydiv" title="monday:'+meta.row+'" >'+ data + '</div>';
+                                        }
+                                        return data;
+                                    }
+                              },
+                                {"data": "tuesday",
+                                "render": function(data, type, row, meta){
+                                        if(type=='display'){
+                                            if(data.toUpperCase().indexOf('OFFLINE') !=-1)
+                                                data = '<div class="mydiv" title="tuesday:'+meta.row+'" style="background-color:#FF1493">'+ data + '</div>';
+                                            else
+                                                data = '<div class="mydiv" title="tuesday:'+meta.row+'" >'+ data + '</div>';
+                                        }
+                                        return data;
+                                    }
+                                }, 
+                                {"data": "wednesday",
+                                "render": function(data, type, row, meta){
+                                        if(type=='display'){
+                                            if(data.toUpperCase().indexOf('OFFLINE') !=-1)
+                                                data = '<div class="mydiv" title="wednesday:'+meta.row+'" style="background-color:#FF1493">'+ data + '</div>';
+                                            else
+                                                data = '<div class="mydiv" title="wednesday:'+meta.row+'" >'+ data + '</div>';
+                                        }
+                                        return data;
+                                    }
+                                },
+                                {"data": "thursday",
+                                "render": function(data, type, row, meta){
+                                        if(type=='display'){
+                                          
+                                            if(data.toUpperCase().indexOf('OFFLINE') !=-1)
+                                                data = '<div class="mydiv" title="thursday:'+meta.row+'" style="background-color:#FF1493">'+ data + '</div>';
+                                            else
+                                                data = '<div class="mydiv" title="thursday:'+meta.row+'" >'+ data + '</div>';
+                                        }
+                                        return data;
+                                    }
+                                },
+                                {"data": "friday",
+                                "render": function(data, type, row, meta){
+                                        if(type=='display'){
+                                          
+                                            if(data.toUpperCase().indexOf('OFFLINE') !=-1)
+                                                data = '<div class="mydiv" title="friday:'+meta.row+'" style="background-color:#FF1493">'+ data + '</div>';
+                                            else
+                                                data = '<div class="mydiv" title="friday:'+meta.row+'" >'+ data + '</div>';
+                                        }
+                                        return data;
+                                    }
+                                }
+                                
+                            ]
+                            //add a listener to fire when redrawn:
+                        
+                        
+                        });
+
+
+                        
+                        //동적으로 추가된 요소에 대해서도 클릭이벤트 작동하도록
+                         $(document).on('click', '.mydiv', function(){
+
+                            dialog.dialog( "open" );
+                           
+                            
+                         
+                          
+                           clickElement=$(this);
+                           
+                           if($(this).html()=='OFFLINE') $('#offline').prop('checked',true)
+                           else $('#online').prop('checked',true)
+                           // var idx = $('.mydiv').index(this);
+                            //clickElement=$('.mydiv').eq(idx);
+                           
+                          
+                           
+                        });
+                       
+
+                      
+
+                        //아래 저장은 관리용 CSV 업데이트
+                        $('#save').click(function(){
+                            console.log(initData)
+                            $.ajax({
+                                url:"http://54.180.133.82/zoom/csv",
+                                data:JSON.stringify(initData),
+                                type:'post',
+                                contentType:'application/json',
+                                dataType:'text',
+                                success:function(data){alert(data)},//함수명만(()는 제외)
+                               
+                            });
+
+                        });
+
+                        //파일 업로드
+                        $('#upload').click(function(){
+                            var form = $('#form')[0];
+                            var formData = new FormData(form); 
+                            formData.append("upload", $("#file")[0].files[0]); 
+                        $.ajax({ 
+                            type: 'POST', 
+                            url: 'http://54.180.133.82/zoom/upload', 
+                            processData: false, // 필수 
+                            contentType: false, // 필수
+                             data: formData, 
+                             success: function(data) {
+                                 alert(data);$('#example').DataTable().ajax.reload();}
+                                 });
+
+                        });
+                        
+
+
+                        $.fn.dataTable.ext.errMode = function(obj,param,err){
+                                var tableId = obj.sTableId;
+                                console.log('서버에서 JSON데이타를 받지 못합니다:테이블 아이디는 '+tableId);
+                        };
+                      
+
+                        
+            });
+    </script>
+    <body>
+        <!--csv export추가-->
+        
+        <div id="dialog-form" title="오프라인/온라인으로 설정">
+            
+            <form class="form-inline" >           
+               
+                <div class="radio">                    
+                    <label class="radio-inline">
+                        <input type="radio" value="OFFLINE" id="offline" name='zoom'> OFFLINE
+                      </label>
+                      <label class="radio-inline">
+                        <input type="radio" nvalue="ONLINE" id="online"  name='zoom'> ONLINE
+                      </label>
+                      <p class="help-block" style="font-weight: bold;color:red">모든 변경후에는 "저장"버튼을<br/> 꼭 클릭하세요</p>
+                </div>             
+                
+            </form>
+        </div>
+        <div class="container">
+            <div class="jumbotron">
+                <h1>비대면수업 백엔드<h2>6 Classroom <span class="label label-success">최철환</span></h2></h1>
+               
+              </div>
+       
+        <h3>CSV파일 업로드</h3>
+        
+        <form class="form-inline" id="form" enctype="multipart/form-data">
+            
+            <div class="form-group">
+               
+                <input type="file" id="file" name="file">
+                
+                
+            </div>
+            <button type="button" class="btn btn-success" id="upload">파일 업로드</button>
+
+        </form>
+        
+        <h3>설정 내용 저장하기</h3>
+       
+        <button type="button" class="btn btn-success" id="save">저장</button>
+        <h3>비대면 OFFLINE/ONLINE일정</h3>
+        <table class="table table-striped table-bordered" id="example" style="width:100%">
+            <thead>
+                <tr>
+                    <th>NAME</th>
+                    <th>MONDAY</th>
+                    <th>TUESDAY</th>
+                    <th>WEDENSDAY</th>
+                    <th>THURSDAY</th>
+                    <th>FRIDAY</th>
+                </tr>
+            </thead>
+           
+        </table>
+    </div>
+    </body>
+
+</html>
