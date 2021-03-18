@@ -6,7 +6,7 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>DataTables Examples</title>
+    <title>비대면 수업 일정</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link type="text/css" rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link type="text/css" rel="stylesheet" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap.min.css">
@@ -41,7 +41,7 @@
                 var clickElement;
                 var dialog = $( "#dialog-form" ).dialog({
                             autoOpen: false,
-                            height: 210,
+                            height: 220,
                             width: 300,
                             modal: true,
                             buttons: {
@@ -60,6 +60,18 @@
                                     console.log('사용자 입력값:'+$('#name').val())     
                                     console.log(initData[parseInt(keyIndex[1])]['name'])
                                     console.log($('#name').val())
+                                    console.log('총 인원:'+names.length)
+                                    var sameCount=1;
+                                    for(var i=0;i < names.length;i++){
+                                        //해당 요일의 div값
+                                        console.log('해당 요일의 div값:'+initData[i][keyIndex[0]])
+                                        if(initData[i][keyIndex[0]].indexOf($('#name').val())!=-1) sameCount++;
+                                    }
+                                    console.log('sameCount:'+sameCount)
+                                    if(sameCount >=2){
+                                        alert('해당 요일에 본인 이름은 하나입니다');
+                                        return;
+                                    }
 
                                     if(clickElement.html().toUpperCase().indexOf('OFFLINE:')!=-1 || clickElement.html().toUpperCase().indexOf('ONLINE:')!=-1){
                                             
@@ -147,9 +159,9 @@
 
                             },
                             "initComplete":function( settings, data){//서버로 부터 받은 데이타
-                                console.log('=======================')
+                                console.log('==========initComplete시작===========')
                                 console.log(data);
-                                console.log('=======================')
+                                console.log('==========initComplete끝=============')
                                 initData=data;
                                 
                                 for(idx in data){
@@ -259,10 +271,10 @@
                        
 
                         $('#complete').click(function(){
-                            dataTables.clear().draw();
-                            dataTables.rows.add(initData); // Add new data
-                            dataTables.columns.adjust().draw(); //
-                            console.log(initData[1])//확인용
+                            //dataTables.clear().draw();
+                            //dataTables.rows.add(initData); // Add new data
+                            //dataTables.columns.adjust().draw(); //
+                            //console.log(initData[1])//확인용
                             //서버로 initData전송
                             //아래 저장은 관리용 CSV 업데이트
                             
@@ -272,7 +284,11 @@
                                 type:'post',
                                 contentType:'application/json',
                                 dataType:'text',
-                                success:function(data){alert(data)},//함수명만(()는 제외)
+                                success:function(data){
+                                    alert(data);
+                                    $('#example').DataTable().ajax.reload();
+                                
+                                },//함수명만(()는 제외)
                                 	
                             });
 
