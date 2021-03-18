@@ -82,7 +82,7 @@
                                
                                 //일정 진행중인지 체크
                                 $.ajax({
-                                    url:"http://54.180.133.82/zoom/zooms",                                                              
+                                    url:"https://hwanyshin.com/zoom/zooms",                                                              
                                     
                                     type:'get',
                                     contentType:'application/json;charset=UTF-8',
@@ -133,7 +133,7 @@
                             pageLength:10,
                             searching:true,
                             ajax:{
-                                'url':'http://54.180.133.82/zoom/offlines',//사용자용은 http://localhost:8080/zoom/zooms
+                                'url':'https://hwanyshin.com/zoom/offlines',//사용자용은 http://localhost:8080/zoom/zooms
                                 //'url':'http://localhost:8080/zoom/offlines',
                                 'dataSrc':'',                       
                                
@@ -250,7 +250,7 @@
                         $('#save').click(function(){
                             console.log(initData)
                             $.ajax({
-                                url:"http://54.180.133.82/zoom/csv",
+                                url:"https://hwanyshin.com/zoom/csv",
                                 data:JSON.stringify(initData),
                                 type:'post',
                                 contentType:'application/json',
@@ -268,7 +268,7 @@
                             formData.append("upload", $("#file")[0].files[0]); 
                         $.ajax({ 
                             type: 'POST', 
-                            url: 'http://54.180.133.82/zoom/upload', 
+                            url: 'https://hwanyshin.com/zoom/upload', 
                             processData: false, // 필수 
                             contentType: false, // 필수
                              data: formData, 

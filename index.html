@@ -151,8 +151,8 @@
                             pageLength:10,
                             searching:true,
                             ajax:{
-                                //'url':'http://54.180.133.82/zoom/zooms',//사용자용은 http://localhost:8080/zoom/zooms 54.180.133.82
-                               'url':'http://54.180.133.82/zoom/zooms',//사용자용은 http://localhost:8080/zoom/zooms 54.180.133.82
+                              
+                               'url':'https://hwanyshin.com//zoom/zooms',//사용자용은 http://localhost:8080/zoom/zooms 
                                 'dataSrc':'',
                                 'contentType':'application/json;charset=UTF-8',                       
                                
@@ -279,7 +279,7 @@
                             //아래 저장은 관리용 CSV 업데이트
                             
                             $.ajax({
-                                url:"http://54.180.133.82/zoom/update",
+                                url:"https://hwanyshin.com/zoom/update",
                                 data:JSON.stringify(initData),
                                 type:'post',
                                 contentType:'application/json',
